@@ -1,31 +1,37 @@
 // prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"  // O el tipo de base de datos que estés usando (mysql, sqlite, etc.)
+  url      = env("DATABASE_URL")
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model EmailIngestionConfig {
-  id            Int      @id @default(autoincrement())
-  emailAddress  String
+  id             Int              @id @default(autoincrement())
+  emailAddress   String
   connectionType String
-  username      String
-  password      String
-  host          String
-  port          Int
-  createdAt     DateTime @default(now())
+  username       String
+  password       String
+  host           String
+  port           Int
+  createdAt      DateTime         @default(now())
+  
+  // Relación inversa con EmailAttachment
+  emailAttachments EmailAttachment[]  // Esto define la relación inversa
 }
 
-model PdfMetadata {
-  id                Int      @id @default(autoincrement())
-  emailConfigId     Int
-  fromAddress       String
-  dateReceived      DateTime
-  subject           String
+model EmailAttachment {
+  id               Int      @id @default(autoincrement())
+  fromAddress      String
+  dateReceived     DateTime
+  subject          String
   attachmentFileName String
-  filePath          String
-  emailConfig       EmailIngestionConfig @relation(fields: [emailConfigId], references: [id])
+  filePath         String
+  emailConfigId    Int
+  
+  // Relación con EmailIngestionConfig
+  emailConfig      EmailIngestionConfig @relation(fields: [emailConfigId], references: [id])
 }
